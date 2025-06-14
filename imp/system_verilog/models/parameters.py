@@ -5,8 +5,9 @@ parameters including regular parameters and local parameters. Each parameter typ
 maintains proper type information and values according to SystemVerilog specifications.
 """
 
-from typing import Any, List, Optional, Union
+from typing import Any, List
 from imp.base.models import component
+from imp.base.models.datatypes import DataType
 
 
 class Parameter(component.Component):
@@ -17,10 +18,11 @@ class Parameter(component.Component):
 
     Attributes:
         name: String identifier for the parameter in generated code.
-        dtype: String representing the SystemVerilog data type.
+        dtype: DataType representing the SystemVerilog data type.
         default: Optional default value for the parameter.
     """
-    def __init__(self, name: str, dtype: str, default: Optional[Any] = None):
+
+    def __init__(self, name: str, dtype: DataType, default: Any | None = None):
         super().__init__()
         if not name:
             raise ValueError("Parameter name cannot be empty")
@@ -35,7 +37,8 @@ class Parameter(component.Component):
 
     def __str__(self) -> str:
         """Returns string representation of the parameter."""
-        return f"Parameter({self.name}: {self.dtype} = {self.default})"
+        args = f"name={self.name!r}, dtype={self.dtype}, default={self.default!r}"
+        return f"Parameter({args})"
 
 
 class ParameterDeclaration(component.Component):
@@ -58,7 +61,8 @@ class ParameterDeclaration(component.Component):
 
     def __str__(self) -> str:
         """Returns string representation of the parameter declaration."""
-        return f"ParameterDeclaration({', '.join(self.names)})"
+        names_repr = ', '.join(repr(n) for n in self.names)
+        return f"ParameterDeclaration(names=[{names_repr}], parameter={self.parameter})"
 
 
 class LocalParam(component.Component):
@@ -69,11 +73,12 @@ class LocalParam(component.Component):
 
     Attributes:
         name: String identifier for the local parameter.
-        dtype: String representing the SystemVerilog data type.
+        dtype: DataType representing the SystemVerilog data type.
         value: Compile-time constant value for the parameter.
         comment: Optional string describing the parameter's purpose.
     """
-    def __init__(self, name: str, dtype: str, value: Any, comment: Optional[str] = None):
+    
+    def __init__(self, name: str, dtype: DataType, value: Any, comment: str | None = None):
         super().__init__()
         if not name:
             raise ValueError("LocalParam name cannot be empty")
@@ -89,8 +94,10 @@ class LocalParam(component.Component):
 
     def __str__(self) -> str:
         """Returns string representation of the local parameter."""
-        base = f"LocalParam({self.name}: {self.dtype} = {self.value})"
-        return f"{base} // {self.comment}" if self.comment else base
+        args = f"name={self.name!r}, dtype={self.dtype}, value={self.value!r}"
+        if self.comment is not None:
+            args += f", comment={self.comment!r}"
+        return f"LocalParam({args})"
 
 
 class LocalParamDeclaration(component.Component):
@@ -113,4 +120,5 @@ class LocalParamDeclaration(component.Component):
 
     def __str__(self) -> str:
         """Returns string representation of the local parameter declaration."""
-        return f"LocalParamDeclaration({', '.join(self.names)})"
+        names_repr = ', '.join(repr(n) for n in self.names)
+        return f"LocalParamDeclaration(names=[{names_repr}], localparam={self.localparam})"
