@@ -1,18 +1,8 @@
-"""Parameter Classes
+"""Defines parameter classes for SystemVerilog model generation.
 
-Copyright 2023 Google LLC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    https://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+This module provides classes to represent and manage different types of SystemVerilog
+parameters including regular parameters and local parameters. Each parameter type 
+maintains proper type information and values according to SystemVerilog specifications.
 """
 
 from typing import Any, List, Optional, Union
@@ -20,12 +10,15 @@ from imp.base.models import component
 
 
 class Parameter(component.Component):
-    """Parameters for SystemVerilog models.
-    
+    """Defines a SystemVerilog parameter with type information and default value.
+
+    This class represents a standard SystemVerilog parameter that can be overridden
+    during module instantiation.
+
     Attributes:
-        name: Parameter name
-        dtype: Parameter data type
-        default: Default value for the parameter
+        name: String identifier for the parameter in generated code.
+        dtype: String representing the SystemVerilog data type.
+        default: Optional default value for the parameter.
     """
     def __init__(self, name: str, dtype: str, default: Optional[Any] = None):
         super().__init__()
@@ -46,7 +39,15 @@ class Parameter(component.Component):
 
 
 class ParameterDeclaration(component.Component):
-    """Declaration of one or more parameters."""
+    """Groups multiple parameters of the same type into a single declaration.
+
+    Provides a more compact representation for parameters sharing identical type
+    information in the generated SystemVerilog code, improving readability.
+
+    Attributes:
+        names: List of parameter names to be declared.
+        parameter: Reference Parameter object containing shared type information.
+    """
     
     def __init__(self, names: List[str], parameter: Parameter):
         super().__init__()
@@ -61,13 +62,16 @@ class ParameterDeclaration(component.Component):
 
 
 class LocalParam(component.Component):
-    """Local parameters for SystemVerilog models.
-    
+    """Implements a SystemVerilog localparam with an immutable value.
+
+    Local parameters serve as module-scoped constants that cannot be modified from
+    outside the module where they are defined.
+
     Attributes:
-        name: LocalParam name
-        dtype: LocalParam data type
-        value: LocalParam value
-        comment: Optional comment describing the local parameter
+        name: String identifier for the local parameter.
+        dtype: String representing the SystemVerilog data type.
+        value: Compile-time constant value for the parameter.
+        comment: Optional string describing the parameter's purpose.
     """
     def __init__(self, name: str, dtype: str, value: Any, comment: Optional[str] = None):
         super().__init__()
@@ -90,7 +94,15 @@ class LocalParam(component.Component):
 
 
 class LocalParamDeclaration(component.Component):
-    """Declaration of one or more local parameters."""
+    """Groups multiple local parameters into a single declaration.
+
+    Enables efficient declaration of multiple local parameters that share common
+    type and value definitions in the generated SystemVerilog code.
+
+    Attributes:
+        names: List of local parameter names to be declared.
+        localparam: Reference LocalParam object containing shared information.
+    """
     
     def __init__(self, names: List[str], localparam: LocalParam):
         super().__init__()
